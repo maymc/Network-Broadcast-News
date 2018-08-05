@@ -7,8 +7,8 @@ let clients = [];
 const server = net.createServer(client => {
 
   //"Connect" listener
-  console.log("Client Connected!");
-  client.write("Server: Hello there! Please enter your name:\n");
+  console.log("[ADMIN]: Client Connected!");
+  client.write("[ADMIN]: Hello there! Please enter your name:\n");
 
   //Client's message
   client.on("data", data => {
@@ -16,13 +16,16 @@ const server = net.createServer(client => {
     console.log(data.toString());
     let clientMsg = data.toString();
 
+    if (clientMsg.includes("ADMIN")) {
+      console.log("[ADMIN] ERROR - You cannot be admin. Please choose a different name.");
+    }
     if (clientMsg.includes("Harry")) {
       client.name = clientMsg;
-      client.write("--> Welcome " + client.name);
+      client.write("--> [ADMIN]: Welcome " + client.name);
     }
     else if (clientMsg.includes("Hermione")) {
       client.name = clientMsg;
-      client.write("--> Welcome " + client.name);
+      client.write("--> [ADMIN]: Welcome " + client.name);
     }
     else {
       clients.forEach(socket => {
@@ -41,7 +44,7 @@ const server = net.createServer(client => {
 });
 
 server.listen(6969, () => {
-  console.log("Server listening on port 6969");
+  console.log("[ADMIN]: Server listening on port 6969");
 });
 
 
