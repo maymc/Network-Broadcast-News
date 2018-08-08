@@ -6,14 +6,12 @@ const net = require("net");
 
 let clients = [];
 
-
-
 //net.Server - class used to create TCP/IPC server, it is an Eventemitter
 const server = net.createServer(client => {
 
   //"Connect" listener
   console.log("[ADMIN]: Client Connected!");
-  client.write("**TIP**: Type /Help to learn more about what you can do!\n\n")
+  client.write("**TIP**: Type /Help for more commands!\n\n")
   client.write("[ADMIN]: Hello there!\n");
 
   //Client's message
@@ -32,20 +30,40 @@ const server = net.createServer(client => {
 
     function attack(obj) {
       if (clientMsg.includes("/thunderbolt")) {
-        obj.hp -= thunderboltHP;
-        client.mp -= thunderboltMP;
+        if (client.mp < thunderboltMP) {
+          console.log("You don't have enough mana. Unable to attack");
+        }
+        else {
+          obj.hp -= thunderboltHP;
+          client.mp -= thunderboltMP;
+        }
       }
       else if (clientMsg.includes("/hydroPump")) {
-        obj.hp -= hydroPumpHP;
-        client.mp -= hydroPumpMP;
+        if (client.mp < hydroPumpMP) {
+          console.log("You don't have enough mana. Unable to attack");
+        }
+        else {
+          obj.hp -= hydroPumpHP;
+          client.mp -= hydroPumpMP;
+        }
       }
       else if (clientMsg.includes("/ember")) {
-        obj.hp -= emberHP;
-        client.mp -= emberMP;
+        if (client.mp < emberMP) {
+          console.log("You don't have enough mana. Unable to attack");
+        }
+        else {
+          obj.hp -= emberHP;
+          client.mp -= emberMP;
+        }
       }
       else if (clientMsg.includes("/tackle")) {
-        obj.hp -= tackleHP;
-        client.mp -= tackleMP;
+        if (client.mp < tackleMP) {
+          console.log("You don't have enough mana. Unable to attack");
+        }
+        else {
+          obj.hp -= tackleHP;
+          client.mp -= tackleMP;
+        }
       }
     }
 
@@ -53,6 +71,7 @@ const server = net.createServer(client => {
     if (clientMsg.includes("/Help")) {
       client.write("\n-----HELP Library-----\n");
       client.write("To attack another character:\n -->'/characterName /attack'\n");
+      client.write("\n***Available Attacks***\n/thunderbolt\n/hydroPump\n/ember\n/tackle\n----------------------\n");
     }
 
     //If user tries to be called an admin
@@ -75,7 +94,7 @@ const server = net.createServer(client => {
     }
     //If user does not select a character, prompt them to select one again
     else if (client.name === undefined && !clientMsg.includes("Pikachu") && !clientMsg.includes("Charmander") && !clientMsg.includes("Bulbasaur") && !clientMsg.includes("Squirtle")) {
-      client.write("\nPlease pick a character to start.\n /Pikachu \n /Charmander \n /Bulbasaur \n /Squirtle\n");
+      client.write("\n[ADMIN]: Please pick a character to start.\n /Pikachu \n /Charmander \n /Bulbasaur \n /Squirtle\n");
     }
     //Else, if client selected a character, broadcast the client's message to all other clients
     else {
@@ -95,37 +114,50 @@ const server = net.createServer(client => {
         let pikachuObj = clients.find(obj => {
           return obj.name === "Pikachu\n";
         });
-        console.log("pikachuObj: ", pikachuObj);
+        //console.log("pikachuObj: ", pikachuObj);
 
         attack(pikachuObj);
+
         client.write("\n>>>Pikachu received damage!!<<<\nPikachu's Stats:\n[HP: " + pikachuObj.hp + "] [MP: " + pikachuObj.mp + "]");
+
         client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Charmander")) {
         let charmanderObj = clients.find(obj => {
           return obj.name === "Charmander\n";
         });
-        console.log("charmanderObj: ", charmanderObj);
+        //console.log("charmanderObj: ", charmanderObj);
+
         attack(charmanderObj);
+
         client.write("\n>>>Charmander received damage!!<<<\nCharmander's Stats:\n[HP: " + charmanderObj.hp + "] [MP: " + charmanderObj.mp + "]");
+
         client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Bulbasaur")) {
         let bulbasaurObj = clients.find(obj => {
           return obj.name === "Bulbasaur\n";
         });
-        console.log("charmanderObj: ", bulbasaurObj);
+
+        //console.log("bulbasaurObj: ", bulbasaurObj);
+
         attack(bulbasaurObj);
+
         client.write("\n>>>Bulbasaur received damage!!<<<\nBulbasuar's Stats:\n[HP: " + bulbasaurObj.hp + "] [MP: " + bulbasaurObj.mp + "]");
+
         client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Squirtle")) {
         let squirtleObj = clients.find(obj => {
           return obj.name === "Squirtle\n";
         });
-        console.log("SquirtleObj: ", squirtleObj);
+
+        //console.log("SquirtleObj: ", squirtleObj);
+
         attack(squirtleObj);
+
         client.write("\n>>>Squirtle received damage!!<<<\nSquirtle's Stats:\n[HP: " + squirtleObj.hp + "] [MP: " + squirtleObj.mp + "]");
+
         client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
     }
@@ -144,6 +176,12 @@ const server = net.createServer(client => {
       // process.stdout.write(`data: ${chunk}`);
       client.write(`[ADMIN]: ${adminMsg}`);
     }
+    // if (adminMsg.includes("/kick Pikachu")) {
+    //   let pikachuDestroy = clients.find(obj => {
+    //     return obj.name === "Pikachu";
+    //   });
+    //   pikachuDestroy.end();
+    // }
   });
 
   process.stdin.on('end', () => {
