@@ -21,23 +21,31 @@ const server = net.createServer(client => {
     //Declare variables
     console.log(data.toString());
     let clientMsg = data.toString();
-    const thunderbolt = 250;
-    const hydroPump = 148;
-    const ember = 300;
-    const tackle = 175;
+    const thunderboltHP = 250;
+    const thunderboltMP = 100;
+    const hydroPumpHP = 148;
+    const hydroPumpMP = 60;
+    const emberHP = 300;
+    const emberMP = 75;
+    const tackleHP = 175;
+    const tackleMP = 50;
 
     function attack(obj) {
       if (clientMsg.includes("/thunderbolt")) {
-        obj.hp -= thunderbolt;
+        obj.hp -= thunderboltHP;
+        client.mp -= thunderboltMP;
       }
       else if (clientMsg.includes("/hydroPump")) {
-        obj.hp -= hydroPump;
+        obj.hp -= hydroPumpHP;
+        client.mp -= hydroPumpMP;
       }
       else if (clientMsg.includes("/ember")) {
-        obj.hp -= ember;
+        obj.hp -= emberHP;
+        client.mp -= emberMP;
       }
       else if (clientMsg.includes("/tackle")) {
-        obj.hp -= tackle;
+        obj.hp -= tackleHP;
+        client.mp -= tackleMP;
       }
     }
 
@@ -55,7 +63,7 @@ const server = net.createServer(client => {
     //Set up the character once user selects one
     if (clientMsg.includes("Pikachu") || clientMsg.includes("Charmander") || clientMsg.includes("Bulbasaur") || clientMsg.includes("Squirtle")) {
 
-      if (!clientMsg.includes("/thunderbolt")) {
+      if (!clientMsg.includes("/thunderbolt") && !clientMsg.includes("/hydroPump") && !clientMsg.includes("/ember") && !clientMsg.includes("/tackle")) {
         //Set user's character
         client.name = clientMsg;
         client.write("--> [ADMIN]: Welcome " + client.name);
@@ -81,7 +89,8 @@ const server = net.createServer(client => {
 
     //If user attacks another user
     if (clientMsg.includes("/thunderbolt") || clientMsg.includes("/hydroPump") || clientMsg.includes("/ember") || clientMsg.includes("/tackle")) {
-      //
+
+      //Determine character being attacked and attack the user with specified attack, lowering the HP of the victim and lowering the MP of the attacker
       if (clientMsg.includes("/Pikachu")) {
         let pikachuObj = clients.find(obj => {
           return obj.name === "Pikachu\n";
@@ -89,7 +98,8 @@ const server = net.createServer(client => {
         console.log("pikachuObj: ", pikachuObj);
 
         attack(pikachuObj);
-        client.write("\n>>>Pikachu received damage!!<<<\nCurrent Stats:\n[HP: " + pikachuObj.hp + "] [MP: " + pikachuObj.mp + "]");
+        client.write("\n>>>Pikachu received damage!!<<<\nPikachu's Stats:\n[HP: " + pikachuObj.hp + "] [MP: " + pikachuObj.mp + "]");
+        client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Charmander")) {
         let charmanderObj = clients.find(obj => {
@@ -97,7 +107,8 @@ const server = net.createServer(client => {
         });
         console.log("charmanderObj: ", charmanderObj);
         attack(charmanderObj);
-        client.write("\n>>>Charmander received damage!!<<<\nCurrent Stats:\n[HP: " + charmanderObj.hp + "] [MP: " + charmanderObj.mp + "]");
+        client.write("\n>>>Charmander received damage!!<<<\nCharmander's Stats:\n[HP: " + charmanderObj.hp + "] [MP: " + charmanderObj.mp + "]");
+        client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Bulbasaur")) {
         let bulbasaurObj = clients.find(obj => {
@@ -105,7 +116,8 @@ const server = net.createServer(client => {
         });
         console.log("charmanderObj: ", bulbasaurObj);
         attack(bulbasaurObj);
-        client.write("\n>>>Bulbasaur received damage!!<<<\nCurrent Stats:\n[HP: " + bulbasaurObj.hp + "] [MP: " + bulbasaurObj.mp + "]");
+        client.write("\n>>>Bulbasaur received damage!!<<<\nBulbasuar's Stats:\n[HP: " + bulbasaurObj.hp + "] [MP: " + bulbasaurObj.mp + "]");
+        client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
       else if (clientMsg.includes("/Squirtle")) {
         let squirtleObj = clients.find(obj => {
@@ -113,7 +125,8 @@ const server = net.createServer(client => {
         });
         console.log("SquirtleObj: ", squirtleObj);
         attack(squirtleObj);
-        client.write("\n>>>Squirtle received damage!!<<<\nCurrent Stats:\n[HP: " + squirtleObj.hp + "] [MP: " + squirtleObj.mp + "]");
+        client.write("\n>>>Squirtle received damage!!<<<\nSquirtle's Stats:\n[HP: " + squirtleObj.hp + "] [MP: " + squirtleObj.mp + "]");
+        client.write("\nYour Stats:\n[HP: " + client.hp + "] [MP: " + client.mp + "]");
       }
     }
   });
