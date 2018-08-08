@@ -1,14 +1,18 @@
 //everything is on server side, everything held on server
+//client and socket are interchangeable
 
+//net module provides an asyncronous network API for creating stream-based TCP/IPC servers (net.createServer())and clients (net.createConnection())
 const net = require("net");
 
 let clients = [];
 
+//net.Server - class used to create TCP/IPC server, it is an Eventemitter
 const server = net.createServer(client => {
 
   //"Connect" listener
   console.log("[ADMIN]: Client Connected!");
-  client.write("[ADMIN]: Hello there! Please enter your name:\n");
+  client.write("**TIP**: Type /Help to learn more about what you can do!\n\n")
+  client.write("[ADMIN]: Hello there!\n");
 
   //Client's message
   client.on("data", data => {
@@ -16,16 +20,25 @@ const server = net.createServer(client => {
     console.log(data.toString());
     let clientMsg = data.toString();
 
-    if (clientMsg.includes("ADMIN")) {
-      console.log("[ADMIN] ERROR - You cannot be admin. Please choose a different name.");
+    //Helper
+    if (clientMsg.includes("/Help")) {
+      client.write("~~HELP~~\n")
     }
-    if (clientMsg.includes("Harry")) {
+
+    if (clientMsg.includes("Admin") || clientMsg.includes("ADMIN") || clientMsg.includes("admin")) {
+      console.log("[ADMIN] ERROR - Your username cannot be admin. Please choose a different name.");
+    }
+
+    if (clientMsg.includes("Pikachu") || clientMsg.includes("Charmander") || clientMsg.includes("Bulbasaur") || clientMsg.includes("Squirtle")) {
+      //Set user's character
       client.name = clientMsg;
       client.write("--> [ADMIN]: Welcome " + client.name);
+      client.hp = 1000;
+      client.mp = 1000;
+      client.write("Here's your stats: [HP: " + client.hp + "] [MP: " + client.mp + "]");
     }
-    else if (clientMsg.includes("Hermione")) {
-      client.name = clientMsg;
-      client.write("--> [ADMIN]: Welcome " + client.name);
+    else if (client.name === undefined && !clientMsg.includes("Pikachu") && !clientMsg.includes("Charmander") && !clientMsg.includes("Bulbasaur") && !clientMsg.includes("Squirtle")) {
+      client.write("\nPlease pick a character to start.\n /Pikachu \n /Charmander \n /Bulbasaur \n /Squirtle\n");
     }
     else {
       clients.forEach(socket => {
@@ -33,14 +46,27 @@ const server = net.createServer(client => {
         if (client !== socket) {
           socket.write("\n " + client.name + " --> " + clientMsg);
         }
-        //socket.write(clientMsg);
-        // console.log(socket);
       })
     }
   });
 
   clients.push(client);
   // console.log(clients);
+
+  //Admin messages
+  process.stdin.setEncoding('utf8');
+
+  process.stdin.on('readable', () => {
+    const adminMsg = process.stdin.read();
+    if (adminMsg !== null) {
+      // process.stdout.write(`data: ${chunk}`);
+      client.write(`[ADMIN]: ${adminMsg}`);
+    }
+  });
+
+  process.stdin.on('end', () => {
+    process.stdout.write('end');
+  });
 });
 
 server.listen(6969, () => {
@@ -48,10 +74,6 @@ server.listen(6969, () => {
 });
 
 
-
-// for(var i = 0; i< clients.length; i++){
-//   clients[i].write(msg);
-// }
 
 //create global array variable
 //push client
